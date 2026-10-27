@@ -1,3 +1,5 @@
+<img width="1028" height="288" alt="workflow-overview" src="https://github.com/user-attachments/assets/f6813c44-a63a-4d9d-a084-e4b8255c9b6f" />
+
 # WooCommerce Inventory Automation with n8n
 
 A portfolio project demonstrating how an e-commerce team can receive order events, validate order data, classify stock risk, protect against duplicate processing, and prepare operational alerts with n8n.
