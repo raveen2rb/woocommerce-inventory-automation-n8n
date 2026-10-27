@@ -1,0 +1,31 @@
+{
+  "id": 1042,
+  "status": "processing",
+  "low_stock_threshold": 5,
+  "line_items": [
+    {
+      "product_id": 501,
+      "name": "Wireless Keyboard",
+      "quantity": 2,
+      "stock_quantity": 20
+    },
+    {
+      "product_id": 502,
+      "name": "USB-C Hub",
+      "quantity": 3,
+      "stock_quantity": 6
+    },
+    {
+      "product_id": 503,
+      "name": "Portable SSD",
+      "quantity": 2,
+      "stock_quantity": 1
+    },
+    {
+      "product_id": 504,
+      "name": "Mystery Product",
+      "quantity": 1,
+      "stock_quantity": null
+    }
+  ]
+}
