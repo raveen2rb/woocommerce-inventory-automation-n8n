@@ -1,0 +1,51 @@
+{
+  "name": "WooCommerce Inventory - Error Handler Template",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "8e50b7a5-3e4b-4df6-b6a1-000000000001",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $input.first().json;\nreturn [{ json: {\n  workflow_name: event.workflow?.name ?? 'unknown',\n  workflow_id: event.workflow?.id ?? null,\n  execution_id: event.execution?.id ?? null,\n  execution_url: event.execution?.url ?? null,\n  last_node_executed: event.execution?.lastNodeExecuted ?? null,\n  error_message: event.execution?.error?.message ?? 'No error message supplied',\n  observed_at: new Date().toISOString(),\n  action_required: 'Connect this output to your chosen notification or incident log. Do not include secrets or customer data in alerts.'\n}}];"
+      },
+      "id": "8e50b7a5-3e4b-4df6-b6a1-000000000002",
+      "name": "Normalize Error Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Error Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c2d17a42-9a62-4e77-9f3c-000000000002",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
