@@ -1,0 +1,57 @@
+{
+  "name": "WooCommerce Inventory Monitoring - Demo",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "woocommerce-inventory-demo",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "7e50b7a5-3e4b-4df6-b6a1-000000000001",
+      "name": "Order Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "woocommerce-inventory-demo"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body ?? input;\nconst order = body.order ?? body;\nconst orderId = order.id ?? order.order_id;\nif (orderId === undefined || orderId === null || String(orderId).trim() === '') {\n  throw new Error('Missing order id: provide id or order_id.');\n}\nconst rawItems = order.line_items ?? order.items;\nif (!Array.isArray(rawItems) || rawItems.length === 0) {\n  throw new Error('Missing line items: provide a non-empty line_items array.');\n}\nconst threshold = Number(body.low_stock_threshold ?? 5);\nif (!Number.isFinite(threshold) || threshold < 0) {\n  throw new Error('low_stock_threshold must be a non-negative number.');\n}\nconst orderKey = 'woocommerce-order:' + String(orderId);\nreturn rawItems.map((item, index) => {\n  const productId = item.product_id ?? item.id;\n  const quantity = Number(item.quantity ?? 1);\n  const stockValue = item.stock_quantity;\n  const stockQuantity = stockValue === null || stockValue === undefined ? null : Number(stockValue);\n  if (productId === undefined || productId === null) throw new Error('Missing product_id for line item index ' + index);\n  if (!Number.isFinite(quantity) || quantity <= 0) throw new Error('Invalid quantity for product ' + productId);\n  if (stockQuantity !== null && (!Number.isFinite(stockQuantity) || stockQuantity < 0)) throw new Error('Invalid stock_quantity for product ' + productId);\n  let status;\n  if (stockQuantity === null) status = 'STOCK_UNKNOWN';\n  else if (stockQuantity < quantity) status = 'OUT_OF_STOCK';\n  else if ((stockQuantity - quantity) <= threshold) status = 'LOW_STOCK';\n  else status = 'OK';\n  return { json: {\n    order_id: String(orderId),\n    order_key: orderKey,\n    line_item_index: index,\n    product_id: String(productId),\n    product_name: item.name ?? item.product_name ?? 'Unnamed product',\n    requested_quantity: quantity,\n    available_stock: stockQuantity,\n    low_stock_threshold: threshold,\n    inventory_status: status,\n    alert_required: status === 'LOW_STOCK' || status === 'OUT_OF_STOCK' || status === 'STOCK_UNKNOWN',\n    processing_mode: 'demo-payload-stock',\n    note: 'Demo only: stock_quantity came from the webhook payload; no live WooCommerce API lookup or persistent duplicate check was performed.'\n  }};\n});"
+      },
+      "id": "7e50b7a5-3e4b-4df6-b6a1-000000000002",
+      "name": "Validate, Normalize & Classify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Order Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate, Normalize & Classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c2d17a42-9a62-4e77-9f3c-000000000001",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
